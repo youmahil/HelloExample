@@ -1,4 +1,4 @@
-name: 'CI'
+name: 'YAONG CI Test'
 
 on:
   push: 
