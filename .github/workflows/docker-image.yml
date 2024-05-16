@@ -14,5 +14,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag echo-demo
+    - name: Set up Docker BuildX
+      uses: docker/setup-buildx-action@v2
+      with:
+        driver-opts: |
+          image=moby/buildkit:v0.12.0
+        buildkitd-flags: --debug
