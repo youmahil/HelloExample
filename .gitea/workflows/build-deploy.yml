@@ -1,0 +1,44 @@
+name: Build and Push Docker Image to Gitea Registry
+
+on:
+ push:
+  branches:
+   - main
+
+jobs:
+ build-and-push:
+  runs-on: ubuntu-latest
+
+  steps:
+   - name: Checkout code
+     uses: https://github.com/actions/checkout@v2
+
+   - name: Install Docker // Docker 설치
+     run: |
+       curl -fsSL https://get.docker.com -o get-docker.sh
+       sh get-docker.sh
+     if: runner.os == 'Linux'
+
+   - name: Set up Docker Buildx
+     uses: https://github.com/docker/setup-buildx-action@v1
+ 
+   - name: Login to Gitea Registry // Gitea Registry 접속
+     run: docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} git.pien.co.kr
+
+   - name: Build and Push Docker Image // Gitea Registry에 Docker Image Push
+     run: |
+       docker buildx create --use
+       docker buildx build -t git.pien.co.kr/gisuk/myproject:latest . --push
+
+   - name: Deploy to Local // Local에서 Docker 이미지 다운로드, 배포
+     uses: https://github.com/appleboy/ssh-action@v1.0.0
+     with:
+       host: 192.168.1.66
+       username: root
+       password: ${{ secrets.SSH_PASSWORD }}
+       port: 22
+       script: |
+        docker pull git.pien.co.kr/gisuk/myproject:latest
+        docker stop myproject
+        docker rm myproject
+        docker run -d --name myproject -p 3000:3000 git.pien.co.kr/gisuk/myproject:latest

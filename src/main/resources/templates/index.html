@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>ECHO-EXAMPLE-MAIN-PAGE</title>
+</head>
+<body>
+
+<script th:src="@{/js/code.jquery.com_jquery-3.7.0.min.js}"></script>
+
+<script type="text/javascript">
+	function changeResultScreen(){
+		const dataText = $("input[name='echoText']").val();
+		const path = '/demo/echo';
+		const param = {
+        	messageBody : dataText
+    	}	
+    		
+		$.ajax({
+				url: path,
+				type: 'POST',
+				data: param,
+				}).done((response) => {
+					$('#workerScreen').html(response);
+				});
+	}
+</script>
+
+<h1 th:text="'Echo Example Main'"></h1> 
+
+<th:block layout:fragment="content">
+
+<form role="form"id="mainForm">	
+	<div>
+		<table border = 1 >
+			<tr>
+				<tr>
+					<td>			
+						<label>임의 문자열 입력</label>
+					</td>					
+					<td>
+						<input type="text" id="echoText" name="echoText" value="">    				
+					</td>
+
+					<td>
+						<button type="button" onclick="changeResultScreen()">Echo</button>
+					</td>
+				</tr>					
+			</tr>
+		</table>		
+	</div>
+</form>	
+<div id="workerScreen" name="workerScreen">
+</div>
+</th:block>
+
+</body>
+</html>		

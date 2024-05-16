@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>ECHO-EXAMPLE-INFO-PAGE</title>
+</head>
+<body>
+
+<h1 th:text="'Echo Result - INFO'"></h1> 
+
+<th:block layout:fragment="content">
+
+<form role="form"id="mainForm">	
+	<div>
+		<table border = "1" bgcolor="SpringGreen">
+			<tr>
+				<tr>
+					<td>			
+						<label>입력 내용</label>
+					</td>					
+					<td>
+						<p th:text="${info.echoText}"></p> 				
+					</td>
+				</tr>
+				<tr>
+					<td>			
+						<label>파일 이름</label>
+					</td>	
+					<td>
+						<p th:text="${info.fileName}"></p> 			
+					</td>
+				</tr>					
+			</tr>
+		</table>		
+	</div>
+</form>	
+</th:block>
+
+</body>
+</html>		
