@@ -63,13 +63,12 @@ jobs:
         run: |
           echo "YAONG=yaong" >> $GITHUB_ENV   
           echo "MONG=mong" >> $GITHUB_ENV
-      
+
       - name: Docker Image Build and Registry deploy
         env:
           DOCKERHUB_REGISTRY: yaongdocker
         run: |
           echo $LATEST_TAG
-#REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
           docker build --build-arg VERSION=$LATEST_TAG -t $DOCKERHUB_REGISTRY/echo-demo:latest .
           docker push -a $DOCKERHUB_REGISTRY/echo-demo
 # aws ecs update-service --cluster example --service $REPO_NAME --task-definition $REPO_NAME --force-new-deployment
