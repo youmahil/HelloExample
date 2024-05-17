@@ -32,32 +32,6 @@ jobs:
 #         arguments: build
       run : ./gradlew clean build -x test
       
-      # 아티팩트 업로드
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: cicdsample
-        path: build/libs/*.jar
- 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      ## 빌드했던거 받기
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: cicdsample
-          
-#       - name: Setup SSH
-#         uses: webfactory/ssh-agent@v0.5.4
-#         with:
-#           ssh-private-key: ${{ secrets.SSH_KEY }}
-      # 깃허브 액션 러너의 아이피를 얻어온다.
-      - name: Get Github action IP
-        id: ip
-        uses: haythem/public-ip@v1.2
-        
       # Docker Login, Build , Push
       - name: Login to My Docker Hub
         uses: docker/login-action@v3
