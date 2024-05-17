@@ -11,10 +11,13 @@ VOLUME /nfsdemofiles
 EXPOSE 8080
 
 # The application's jar file
-ARG JAR_FILE=/build/libs/demo-0.0.1-SNAPSHOT.jar
+#ARG JAR_FILE=build/libs/demo-0.0.1-SNAPSHOT.jar
 
 # Add the application's jar to the container
-ADD ${JAR_FILE} echo-demo.jar
+#ADD ${JAR_FILE} echo-demo.jar
+
+ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} echo-demo.jar
 
 # Run the jar file
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/echo-demo.jar"]
