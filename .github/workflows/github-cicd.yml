@@ -71,6 +71,6 @@ jobs:
           DOCKERHUB_REGISTRY: yaongdocker
         run: |
           echo $LATEST_TAG
-          docker build -t $DOCKERHUB_REGISTRY/echo-demo:latest .
+          docker build -t $DOCKERHUB_REGISTRY/echo-demo:latest -f Dockerfile .
           docker push -a $DOCKERHUB_REGISTRY/echo-demo:latest
           
