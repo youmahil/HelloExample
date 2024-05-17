@@ -58,15 +58,17 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.2
       
-      # 환경변수 설정 (ap-northeast-2 is seoul)
-      - name: Setting environment variables
+      # 환경변수 설정 
+      - name: docker login Setting environment variables
+        env:
+          DOCKER_USER: '${{ secrets.DOCKER_USER }}'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
         run: |
-          echo "YAONG=yaong" >> $GITHUB_ENV   
-          echo "MONG=mong" >> $GITHUB_ENV
-
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+          
       - name: Docker Image Build and Registry deploy
         env:
-          DOCKERHUB_REGISTRY: yaongdocker
+          DOCKERHUB_REGISTRY: $DOCKER_USER
         run: |
           echo $LATEST_TAG
           docker build --build-arg VERSION=$LATEST_TAG -t $DOCKERHUB_REGISTRY/echo-demo:latest .
