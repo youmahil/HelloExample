@@ -49,5 +49,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        no-cache: false
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/github-echo-demo:0.0.1
