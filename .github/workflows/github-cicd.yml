@@ -48,4 +48,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/echo-demo:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/github-echo-demo:0.0.1
