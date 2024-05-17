@@ -58,60 +58,20 @@ jobs:
         id: ip
         uses: haythem/public-ip@v1.2
       
-      # 환경변수 설정
+      # 환경변수 설정 (ap-northeast-2 is seoul)
       - name: Setting environment variables
         run: |
-          echo "AWS_DEFAULT_REGION=ap-northeast-2" >> $GITHUB_ENV
-          echo "AWS_SG_NAME=launch-wizard-2" >> $GITHUB_ENV
+          echo "AWS_DEFAULT_REGION=ap-northeast-2" >> $GITHUB_ENV   
+          echo "AWS_SG_NAME=launch-wizard-1" >> $GITHUB_ENV
       
-      # AWS 설정
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          # 아이엠 키 설정
-           aws-access-key-id: ${{ secrets.AWS_IAM_ACCESS_KEY_ID }} 
-           aws-secret-access-key: ${{ secrets.AWS_IAM_SECRET_KEY }} 
-           aws-region: ap-northeast-2
-      
-      # 깃허브 액션의 아이피를 인바운드 룰에 임시 등록
-      - name: Add Github Actions IP to Security group
-        run: |
-          aws ec2 authorize-security-group-ingress --group-name ${{ env.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
-      
-      # SCP로 서버로 전송
-      - name: SCP transfer
-        uses: appleboy/scp-action@master
-        with:
-          username: ${{ secrets.SSH_USER }}
-          host: ${{ secrets.SSH_ADDR }}
-          key: ${{ secrets.SSH_KEY }}
-          rm: true
-          source: ${{ secrets.SOURCE_PATH }}
-          target: ${{ secrets.DIST_PATH }}
-          ## 작업에 사용했던 dist 디렉토리를 경로상에서 제거
-          strip_components: 1
-
-#       - name: Execute remote commands
-#         run: |
-#           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_ADDR }} "sudo fuser -k 8080/tcp"
-#           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_ADDR }} "
-      
-      # 내가 만든 서버 스크립트 실행
-      - name: Execute Server Init Script
-        uses: appleboy/ssh-action@master
-        with:
-          username: ${{ secrets.SSH_USER }}
-          host: ${{ secrets.SSH_ADDR }}
-          key: ${{ secrets.SSH_KEY }}
-          script_stop: true
-          script: | 
-            sh action_deploy.sh
-            
-      # 깃허브 러너 아이피를 인바운드 룰에서 
-      - name: Remove Github Actions IP from security group
-        run: |
-         aws ec2 revoke-security-group-ingress --group-name ${{ env.AWS_SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      - name: Docker Image Build and Registry deploy
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_IAM_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_IAM_SECRET_KEY }}
-          AWS_DEFAULT_REGION: ap-northeast-2
+          DOCKERHUB_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          echo $LATEST_TAG
+          REPO_NAME=$(echo $GITHUB_REPOSITORY | awk -F / '{print $2}')
+          docker build --build-arg VERSION=$LATEST_TAG -t $DOCKERHUB_REGISTRY/$REPO_NAME:$GITHUB_SHA -t $ECR_REGISTRY/$REPO_NAME:latest .
+          docker push -a $DOCKERHUB_REGISTRY/$REPO_NAME
+          # aws ecs update-service --cluster example --service $REPO_NAME --task-definition $REPO_NAME --force-new-deployment
+          
+          
