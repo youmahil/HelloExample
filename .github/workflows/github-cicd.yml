@@ -68,11 +68,9 @@ jobs:
           
       - name: Docker Image Build and Registry deploy
         env:
-          DOCKERHUB_REGISTRY: '${{ secrets.DOCKER_USER }}'
+          DOCKERHUB_REGISTRY: 'yaongdocker
         run: |
           echo $LATEST_TAG
           docker build -t $DOCKERHUB_REGISTRY/echo-demo:latest .
           docker push -a $DOCKERHUB_REGISTRY/echo-demo:latest
-# aws ecs update-service --cluster example --service $REPO_NAME --task-definition $REPO_NAME --force-new-deployment
-          
           
