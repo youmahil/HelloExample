@@ -59,7 +59,7 @@ jobs:
         uses: haythem/public-ip@v1.2
         
       # Docker Login, Build , Push
-        name: Login to My Docker Hub
+      - name: Login to My Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
