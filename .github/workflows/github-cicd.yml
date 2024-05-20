@@ -40,12 +40,29 @@ jobs:
         echo "${{ secrets.PROPERTIES }}" > ./application.properties
       shell: bash	 
 
+    - uses: browser-actions/setup-chrome@latest
+    - run: chrome --version   
+    
     # Gradle Build
     - name: Build with Gradle
       run: |
         chmod +x ./gradlew
-        ./gradlew clean build -x test
+        ./gradlew clean build test
 
+    - name: Archive Test Results
+      uses: actions/upload-artifact@v3
+      if: success() || failure()
+      with:
+        name: test-results
+        path: GradleReports/emailable-report.html
+        
+    - name: Test Reporter
+      uses: dorny/test-reporter@v1.4.3
+      with:
+        name: Run Tests
+      path: "**/surefire-reports/TEST-*.xml"
+      reporter: java-junit
+      
     # for Docker Image Tagging
     - name: Get Tagging verion
       id: image
@@ -54,21 +71,15 @@ jobs:
         echo VERSION=$VERSION
         echo "::set-output name=version::$VERSION"
           
-    # Docker build and Push to Docker registry
-    - name: Login to GitHub Packages Container Registry
+    # Container Registry Login
+    - name: Login to Container Registry
       uses: docker/login-action@v1
       with:
         registry: docker.io
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-#    - name: Push to GitHub Packages
-#      uses: docker/build-push-action@v2
-#      with:
-#        push: true
-#        tags: |
-#          ${{ env.IMAGE_NAME }}:${{ steps.image.outputs.version }}    
-    
+    # Container build and Push to Container registry
     - name: Docker build & push to docker repo
       run: |
         docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
