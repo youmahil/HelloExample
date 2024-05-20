@@ -1,4 +1,4 @@
-name: CD with Gradle and push dockerhub
+name: CI/CD with Gradle build and push dockerhub and triggering Deploy  K8s
 
 # 언제 이 파일의 내용이 실행될 것인지 정의 
 # 여기서는 main 브랜치에 코드가 push 되거나 pull_request되었을 때 실행할 것을 정의
@@ -17,7 +17,7 @@ permissions:
 
 # 실제 실행될 내용들을 정의
 jobs:
-  build-push-docker:
+  continuous-integration-yaong:
     runs-on: ubuntu-latest # ubuntu 최신 버전에서 script를 실행
 
     steps:
@@ -71,16 +71,30 @@ jobs:
 #        tags: |
 #          ${{ env.IMAGE_NAME }}:${{ steps.image.outputs.version }}    
     
-    - name: Docker build & push to docker repo
+#    - name: Docker build & push to docker repo
+#      run: |
+#        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+#        docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/github-echo-demo:${{ steps.image.outputs.version }} .
+#        docker push ${{ secrets.DOCKER_REPO }}/github-echo-demo:${{ steps.image.outputs.version }}
+
+# Delivery to Docker Registry
+  continuous-delivery-docker:
+    needs: continuous-integration-yaong
+    runs-on: ubuntu-latest # ubuntu 최신 버전에서 script를 실행
+
+    steps:
+    # Docker build & push to docker registry
+    - name: Docker build & push to docker registry
       run: |
         docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
         docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/github-echo-demo:${{ steps.image.outputs.version }} .
         docker push ${{ secrets.DOCKER_REPO }}/github-echo-demo:${{ steps.image.outputs.version }}
 
+      
 # Deploy to K8s Triggering
-  deploy-to-k8s-triggr:
+  continuous-deploy-to-k8s-triggr:
     runs-on: ubuntu-latest
-    needs: build-push-docker
+    needs: continuous-delivery-docker
 
     steps:    
     - name: Get Taggong verion
