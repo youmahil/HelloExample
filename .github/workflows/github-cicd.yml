@@ -46,27 +46,28 @@ jobs:
         chmod +x ./gradlew
         ./gradlew clean build -x test
 
-      - name: Get Tagging verion
-        id: image
-        run: |
-          VERSION=$(echo ${{ github.sha }} | cut -c1-8)
-          echo VERSION=$VERSION
-          echo "::set-output name=version::$VERSION"
+    # for Docker Image Tagging
+    - name: Get Tagging verion
+      id: image
+      run: |
+        VERSION=$(echo ${{ github.sha }} | cut -c1-8)
+        echo VERSION=$VERSION
+        echo "::set-output name=version::$VERSION"
           
     # Docker build and Push to Docker registry
-      - name: Login to GitHub Packages Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Login to GitHub Packages Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: docker.io
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push to GitHub Packages
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:${{ steps.image.outputs.version }}    
+    - name: Push to GitHub Packages
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: |
+          ${{ env.IMAGE_NAME }}:${{ steps.image.outputs.version }}    
     
 #    - name: Docker build & push to docker repo
 #      run: |
@@ -80,33 +81,33 @@ jobs:
     needs: build
 
     steps:    
-      - name: Get Taggong verion
-        id: image
-        run: |
-          VERSION=$(echo ${{ github.sha }} | cut -c1-8)
-          echo VERSION=$VERSION
-          echo "::set-output name=version::$VERSION"
+    - name: Get Taggong verion
+      id: image
+      run: |
+        VERSION=$(echo ${{ github.sha }} | cut -c1-8)
+        echo VERSION=$VERSION
+        echo "::set-output name=version::$VERSION"
 
-      - name: Setup Kustomize
-        uses: imranismail/setup-kustomize@v1
+    - name: Setup Kustomize
+      uses: imranismail/setup-kustomize@v1
 
-      - name: Checkout kustomize repository
-        uses: actions/checkout@v2
-        with:
-          repository: youmahil/ManifestExample
-          token: ${{ secrets.ACTION_TOKEN }}
-          path: ManifestExample
+    - name: Checkout kustomize repository
+      uses: actions/checkout@v2
+      with:
+        repository: youmahil/ManifestExample
+        token: ${{ secrets.ACTION_TOKEN }}
+        path: ManifestExample
 
-      - name: Update Kubernetes resources
-        run: |
-          cd ManifestExample/overlays/dev/
-          kustomize edit set image ${{ env.IMAGE_NAME }}:${{ steps.image.outputs.version }}
-          cat kustomization.yaml
+    - name: Update Kubernetes resources
+      run: |
+        cd ManifestExample/overlays/dev/
+        kustomize edit set image ${{ env.IMAGE_NAME }}:${{ steps.image.outputs.version }}
+        cat kustomization.yaml
 
-      - name: Commit files
-        run: |
-          cd ManifestExample
-          git config --global user.email "youmahil@bluedigm.com"
-          git config --global user.name "YAONG"
-          git commit -am "Update image tag"
-          git push -u origin main
+    - name: Commit files
+      run: |
+        cd ManifestExample
+        git config --global user.email "youmahil@bluedigm.com"
+        git config --global user.name "YAONG"
+        git commit -am "Update image tag"
+        git push -u origin main
