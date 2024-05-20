@@ -103,7 +103,7 @@ jobs:
         echo VERSION=$VERSION
         echo "::set-output name=version::$VERSION"
           
-    # Docker build and Push to Docker registry
+    # Docker Login
     - name: Login to GitHub Packages Container Registry
       uses: docker/login-action@v1
       with:
@@ -111,8 +111,8 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
         
-    # Docker build & push to docker registry
-    - name: Docker build & push to docker registry
+    # Docker build and push to docker registry
+    - name: Docker build and push to docker registry
       uses: actions/download-artifact@v3
       with:
         name: build # 위의 upload-artifact에서 설정한 name
