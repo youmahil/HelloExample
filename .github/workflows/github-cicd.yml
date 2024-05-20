@@ -116,8 +116,8 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build # 위의 upload-artifact에서 설정한 name
-      - run: pwd && ls -laF
       - run: |
+          pwd && ls -laF
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/github-echo-demo:${{ steps.image.outputs.version }} .
           docker push ${{ secrets.DOCKER_REPO }}/github-echo-demo:${{ steps.image.outputs.version }}
