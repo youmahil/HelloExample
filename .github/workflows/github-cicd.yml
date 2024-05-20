@@ -44,7 +44,9 @@ jobs:
     - name: Build with Gradle
       run: |
         chmod +x ./gradlew
+        pwd && ls -laF
         ./gradlew clean build -x test
+        pwd && ls -laF
 
     # for Docker Image Tagging
     - name: Get Tagging verion
