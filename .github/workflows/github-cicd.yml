@@ -56,12 +56,13 @@ jobs:
         name: test-results
         path: GradleReports/emailable-report.html
         
-    - name: Test Reporter
-      uses: dorny/test-reporter@v1.4.3
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()    # run this step even if previous step failed
       with:
-        name: Run Tests
-        path: "**/surefire-reports/TEST-*.xml"
-        reporter: java-junit
+        name: JEST Tests            # Name of the check run which will be created
+        path: reports/jest-*.xml    # Path to test results
+        reporter: jest-junit        # Format of test results
         
     # for Docker Image Tagging
     - name: Get Tagging verion
