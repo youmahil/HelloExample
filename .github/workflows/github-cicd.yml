@@ -49,20 +49,15 @@ jobs:
         chmod +x ./gradlew
         ./gradlew clean build test
 
-    - name: Archive Test Results
-      uses: actions/upload-artifact@v3
-      if: success() || failure()
+    - name: Test with Gradle
+      run: ./gradlew --info test
+ 
+      # 테스트 후 Result를 보기위해 Publish Unit Test Results step 추가
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: ${{ always() }}  # 테스트가 실패하여도 Report를 보기 위해 `always`로 설정
       with:
-        name: test-results
-        path: GradleReports/emailable-report.html
-        
-    - name: Test Report
-      uses: dorny/test-reporter@v1
-      if: success() || failure()    # run this step even if previous step failed
-      with:
-        name: JEST Tests            # Name of the check run which will be created
-        path: reports/jest-*.xml    # Path to test results
-        reporter: jest-junit        # Format of test results
+        files: build/test-results/**/*.xml
         
     # for Docker Image Tagging
     - name: Get Tagging verion
