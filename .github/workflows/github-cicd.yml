@@ -40,24 +40,40 @@ jobs:
         echo "${{ secrets.PROPERTIES }}" > ./application.properties
       shell: bash	 
 
-    - uses: browser-actions/setup-chrome@latest
-    - run: chrome --version   
-    
     # Gradle Build
-    - name: Build with Gradle
-      run: |
-        chmod +x ./gradlew
-        ./gradlew clean build test
+#    - name: Build with Gradle
+#      run: |
+#        chmod +x ./gradlew
+#        ./gradlew clean build -x test
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
     - name: Test with Gradle
       run: ./gradlew --info test
- 
-      # 테스트 후 Result를 보기위해 Publish Unit Test Results step 추가
+
     - name: Publish Unit Test Results
       uses: EnricoMi/publish-unit-test-result-action@v1
-      if: ${{ always() }}  # 테스트가 실패하여도 Report를 보기 위해 `always`로 설정
+      if: ${{ always() }}
       with:
         files: build/test-results/**/*.xml
+
+    - name: Cleanup Gradle Cache
+      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+      run: |
+        rm -f ~/.gradle/caches/modules-2/modules-2.lock
+        rm -f ~/.gradle/caches/modules-2/gc.properties
         
     # for Docker Image Tagging
     - name: Get Tagging verion
