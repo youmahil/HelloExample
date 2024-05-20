@@ -84,16 +84,22 @@ jobs:
 #        docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/github-echo-demo:${{ steps.image.outputs.version }} .
 #        docker push ${{ secrets.DOCKER_REPO }}/github-echo-demo:${{ steps.image.outputs.version }}
 
+  down:
+    runs-on: ubuntu-latest
+    needs: continuous-integration-yaong
+    steps:
+      - run: pwd && ls -laF
+        continue-on-error: true
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: pwd && ls -laF
+      
 # Delivery to Docker Registry
   continuous-delivery-docker:
-    needs: continuous-integration-yaong
+    needs: down
     runs-on: ubuntu-latest # ubuntu 최신 버전에서 script를 실행
 
-    permissions:
-      packages: write
-      contents: read
-      attestations: write
-      
     steps:
     # for Docker Image Tagging
     - name: Get Tagging verion
@@ -113,9 +119,6 @@ jobs:
         
     # Docker build and push to docker registry
     - name: Docker build and push to docker registry
-      uses: actions/download-artifact@v3
-      with:
-        name: build # 위의 upload-artifact에서 설정한 name
       run: |
           pwd && ls -laF
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
