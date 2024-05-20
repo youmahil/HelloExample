@@ -48,6 +48,12 @@ jobs:
         ./gradlew clean build -x test
         pwd && ls -laF
 
+    - name: Upload jar Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: jar-artifact # Job Artifact의 이름으로 설정 및 Artifact를 가져오는데 사용
+        path: app/build/outputs/artifact # 폴더 지정 : 이 폴더 아래의 모든 파일들이 하나의 artifact로 저장된다.
+
     # for Docker Image Tagging
 #    - name: Get Tagging verion
 #      id: image
@@ -88,6 +94,14 @@ jobs:
       attestations: write
       
     steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: jar-artifact # 위의 upload-artifact에서 설정한 name
+
+    - name: List Contents
+      run: pwd && ls -laF
+
     # for Docker Image Tagging
     - name: Get Tagging verion
       id: image
