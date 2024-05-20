@@ -82,6 +82,11 @@ jobs:
     needs: continuous-integration-yaong
     runs-on: ubuntu-latest # ubuntu 최신 버전에서 script를 실행
 
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      
     steps:
     # for Docker Image Tagging
     - name: Get Tagging verion
