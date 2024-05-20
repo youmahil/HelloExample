@@ -42,12 +42,7 @@ jobs:
         echo "${{ secrets.PROPERTIES }}" > ./application.properties
       shell: bash	 
 
-    # Gradle Build
-#    - name: Build with Gradle
-#      run: |
-#        chmod +x ./gradlew
-#        ./gradlew clean build -x test
-
+    # Gradle Build and Test and Display Test Report
     - name: Cache Gradle packages
       uses: actions/cache@v2
       with:
@@ -61,7 +56,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Test with Gradle
+    - name: Build jar and Test with Gradle
       run: ./gradlew clean build --info test
 
     - name: Publish Unit Test Results
@@ -126,10 +121,10 @@ jobs:
     - name: Update Kubernetes resources
       run: |
         cd ManifestExample/overlays/dev/
-        kustomize edit set image ${{ env.IMAGE_NAME }}:${{ steps.image.outputs.version }}
+        kustomize edit set image ${{ env.IMAGE_NAME }}:0.0.1_${{ steps.image.outputs.version }}
         cat kustomization.yaml
 
-    - name: Commit files
+    - name: Commit Manifest files
       run: |
         cd ManifestExample
         git config --global user.email "youmahil@bluedigm.com"
