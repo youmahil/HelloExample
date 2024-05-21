@@ -19,7 +19,7 @@ permissions: write-all
 
 # 실제 실행될 내용들을 정의
 jobs:
-  build-jar-and-docker-push:
+  build-and-container-registry-push:
     runs-on: ubuntu-latest # ubuntu 최신 버전에서 script를 실행
 
     steps:
@@ -95,13 +95,13 @@ jobs:
         docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/github-echo-demo:0.0.1_${{ steps.image.outputs.version }} .
         docker push ${{ secrets.DOCKER_REPO }}/github-echo-demo:0.0.1_${{ steps.image.outputs.version }}
 
-# Deploy to K8s Triggering
-  deploy-to-k8s-triggr:
+# Touch Manifest Repository file to K8s Triggering
+  deploy-touch-to-k8s-triggr:
     runs-on: ubuntu-latest
-    needs: build-jar-and-docker-push
+    needs: build-and-container-registry-push
 
     steps:    
-    - name: Get Taggong verion
+    - name: Get Tagging verion
       id: image
       run: |
         VERSION=$(echo ${{ github.sha }} | cut -c1-8)
