@@ -129,5 +129,5 @@ jobs:
         cd ManifestExample
         git config --global user.email "youmahil@bluedigm.com"
         git config --global user.name "YAONG"
-        git commit -am "Update image tag"
+        git commit -am "Update image tag = 0.0.1_${{ steps.image.outputs.version }}"
         git push -u origin main
